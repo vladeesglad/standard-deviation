@@ -1,0 +1,72 @@
+public class DSPevalScoring {
+    
+    
+    public static decimal standardDev (string recid, decimal overall) {
+        
+        decimal sd;
+        sd = dspevalScoring.getStdDev(dspevalscoring.thiseval(recid), overall);
+        return sd;        
+    }
+
+    private static string evalQueryStr () {
+        string queryeval = '';
+        string rawfields;
+
+        rawfields = queryAllFields.intheAbstract('dsp_eval__c');
+        
+        list <string> sortflds = rawfields.split(',');
+        
+        for (string xv : sortflds) {
+            if (xv.startswithignorecase('x') && !xv.contains('div') && !xv.contains('sub') && !xv.contains('part') && !xv.contains('com') &&
+               !xv.contains('emp') && !xv.contains('imp') && !xv.contains('plan') && !xv.contains('stre') && !xv.contains('not')) {
+                queryeval += xv + ',';
+            }
+            queryeval.removeEnd(',');
+        }
+        return queryeval;
+    }
+
+    private static DSP_eval__c thiseval (string recid) {
+        DSP_eval__c evalit;
+        string selstring = dspevalscoring.evalquerystr();
+        string qstring = 'SELECT ' + selstring + ' FROM DSP_eval__c WHERE id = :recid LIMIT 1';
+        
+        evalit = database.query(qstring);
+        
+        return evalit;        
+    }
+    
+    private static decimal getStdDev (DSP_eval__c arec, decimal mean) {
+        decimal stdDev;
+    
+        string thisrec = json.serialize(arec);
+        thisrec = thisrec.substringAfter('"},"Id":');
+        thisrec = thisrec.remove('"');
+        list <string> valuepairs = thisrec.split(',');
+        string fldval = '';
+        integer countentries = 0;
+        decimal alldevs = 0;
+        decimal deviation;
+        
+        for (string vpr : valuepairs) {
+            if (vpr.substringafter(':') != 'x' && vpr.substringafter(':') != 'X'  ) {
+                if (vpr.substringafter(':') == '5') {
+                    countentries++;
+                    deviation = math.abs(mean - .5);   
+                    alldevs += deviation;
+                }
+                
+                else  {
+                    countentries++;
+                    deviation = math.abs(mean - decimal.valueof(vpr.substringafter(':')));                    
+                    alldevs += deviation;
+                }
+            }
+        }
+        
+        stdDev = alldevs / countentries;
+        
+        return stdDev;       
+    }
+
+}
