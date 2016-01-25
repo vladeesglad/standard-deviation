@@ -2,11 +2,17 @@ public class DSPevalScoring {
     
     
     public static decimal standardDev (string recid, decimal overall) {
-        
         decimal sd;
         sd = dspevalScoring.getStdDev(dspevalscoring.thiseval(recid), overall);
         return sd;        
     }
+    
+    public static decimal StandarDev (dsp_eval__c thisrec, decimal overall) {
+        decimal sd;
+        sd = dspevalScoring.getStdDev(thisrec, overall);
+        return sd;        
+    }
+
 
     private static string evalQueryStr () {
         string queryeval = '';
